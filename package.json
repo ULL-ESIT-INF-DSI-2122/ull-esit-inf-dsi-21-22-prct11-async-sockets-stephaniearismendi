@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha",
     "coverage": "nyc npm test && nyc report --reporter=lcov",
-    "start": "tsc-watch --onSuccess \"node dist/ejercicio-clase/modificacion.js\"",
+    "start": "tsc-watch --onSuccess \"node dist/modificacion-02-05/index.js\"",
     "startejercicio1": "tsc-watch --onSuccess \"node dist/ejercicio-1/index.js\"",
     "startejercicio2": "tsc-watch --onSuccess \"node dist/ejercicio-2/index.js\"",
     "startejercicio3": "tsc-watch --onSuccess \"node dist/ejercicio-3/notes-app.js\"",
