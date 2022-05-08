@@ -1,10 +1,48 @@
+import * as net from 'net';
+import {MessageEventEmitterController} from './EventEmitterController';
+
 import * as yargs from 'yargs';
-import {Notes} from './notes';
 import chalk from 'chalk';
-import {monitor} from './look-directory';
+import {RequestTypes} from './types';
 
-const nota = new Notes();
+/**
+ * Aux function that prints a string in a color
+ * @param color color of the note
+ * @param cadena string to print
+ */
+function printColor(color:string, cadena:string):void {
+  if (color === 'red') {
+    console.log(chalk.red(cadena));
+  } else if (color === 'green') {
+    console.log(chalk.green(cadena));
+  } else if (color === 'blue') {
+    console.log(chalk.blue(cadena));
+  } else if (color === 'yellow') {
+    console.log(chalk.yellow(cadena));
+  }
+}
 
+const client = net.connect({port: 6060}); // default port
+const socket = new MessageEventEmitterController(client);
+
+/**
+ * Type of the request.
+ * @param {RequestTypes} request
+ */
+let _request:RequestTypes = {
+  user: '',
+  title: '',
+  body: '',
+  color: '',
+  path: '',
+  type: 'list',
+};
+
+/**
+ * Checks if the given string is a valid color.
+ * @param color - The color of the note.
+ * @returns colorFinal - The color of the note.
+ */
 export function checkColor(color:string):string {
   const _colors: string[] = ['red', 'green', 'blue', 'yellow'];
   let colorFinal:string = '';
@@ -18,6 +56,8 @@ export function checkColor(color:string):string {
   }
   return colorFinal;
 }
+
+// COMMANDS LIST
 
 /**
  * Command to create a note
@@ -59,7 +99,13 @@ yargs.command({
       let colorFinal:string = ' ';
       colorFinal = checkColor(argv.color);
       const newTitle:string = argv.title.replace(/\s/g, '-');
-      nota.createNote(argv.user, newTitle, argv.body, colorFinal);
+      _request = {
+        user: argv.user,
+        title: newTitle,
+        body: argv.body,
+        color: colorFinal,
+        type: 'add',
+      };
     }
   },
 });
@@ -88,7 +134,11 @@ yargs.command({
   handler(argv) {
     if (typeof argv.user === 'string' && typeof argv.title === 'string') {
       const newTitle:string = argv.title.replace(/\s/g, '-');
-      nota.readNote(argv.user, newTitle);
+      _request = {
+        user: argv.user,
+        title: newTitle,
+        type: 'read',
+      };
     }
   },
 });
@@ -109,7 +159,10 @@ yargs.command({
   },
   handler(argv) {
     if (typeof argv.user === 'string') {
-      nota.listNotes(argv.user);
+      _request = {
+        user: argv.user,
+        type: 'list',
+      };
     }
   },
 });
@@ -138,7 +191,11 @@ yargs.command({
   handler(argv) {
     if (typeof argv.user === 'string' && typeof argv.title === 'string') {
       const newTitle:string = argv.title.replace(/\s/g, '-');
-      nota.deleteNote(argv.user, newTitle);
+      _request = {
+        user: argv.user,
+        title: newTitle,
+        type: 'remove',
+      };
     }
   },
 });
@@ -183,38 +240,86 @@ yargs.command({
       const newTitle:string = argv.title.replace(/\s/g, '-');
       let colorFinal:string = ' ';
       colorFinal = checkColor(argv.color);
-      nota.editNote(argv.user, newTitle, argv.body, colorFinal);
+      _request = {
+        user: argv.user,
+        title: newTitle,
+        body: argv.body,
+        color: colorFinal,
+        type: 'modify',
+      };
     }
   },
+});
+
+yargs.parse();
+
+// SENDING REQUEST TO THE SERVER
+
+/**
+ * @description The client sends the request to the server
+ */
+client.write(JSON.stringify(_request) + '\n', (err:any) => {
+  if (err) {
+    console.log(chalk.red('Error: ' + err));
+  } else {
+    console.log(chalk.green('Request sent'));
+  };
+});
+
+// RECEIVING RESPONSE FROM THE SERVER
+
+/**
+ * @description The socket receives the response from the server and prints it
+ */
+socket.on('message', (data) => {
+  const aux:any = JSON.stringify(data);
+  const response:any = JSON.parse(aux);
+  if (response.state === 1) {
+    if (response.type === 'add') {
+      console.log(chalk.green(`Note ${response.title} added`));
+    } else if (response.type === 'read') {
+      console.log(chalk.green(`Note ${response.title} contains the following: `));
+      printColor(response.color, response.body);
+    } else if (response.type === 'list') {
+      console.log(chalk.green(`List of notes for ${response.user}`));
+      response.notes.forEach((note:any) => {
+        console.log(chalk.green(`Title: ${note.title}`));
+        console.log(chalk.green('-----------------------------------------------------'));
+        printColor(note.color, note.body);
+      },
+      );
+    } else if (response.type === 'remove') {
+      console.log(chalk.green(`Note ${response.title} removed`));
+    } else if (response.type === 'modify') {
+      console.log(chalk.green(`Note ${response.title} modified`));
+    }
+  } else {
+    console.log(chalk.red(`Error: ${response.error}`));
+  }
+  client.destroy(); // kill client after server's response
+},
+);
+
+// CLOSING CONNECTIONS AND ERRORS
+
+/**
+ * @description Controls the closing of the socket
+ */
+socket.on('close', () => {
+  console.log(chalk.red('Connection closed'));
 });
 
 /**
-   * Command to ask for the user name and the directory path to monitor
-   * @param user name of the user
-   * @param path path of the directory
-   */
-yargs.command({
-  command: 'monitor',
-  describe: 'Monitors changes made to the specified directory',
-  builder: {
-    user: {
-      describe: 'User we wants to monitor',
-      demandOption: true,
-      type: 'string',
-    },
-    path: {
-      describe: 'path to the directory we want to monitor',
-      demandOption: true,
-      type: 'string',
-    },
-  },
-  handler(argv) {
-    if (typeof argv.user === 'string' && typeof argv.path === 'string') {
-      console.log(chalk.green(`Monitoring changes in ${argv.path}`));
-      monitor(argv.user, argv.path);
-    }
-  },
+ * @description Checks if there is an error in the client
+ */
+client.on('error', (err:any) => {
+  console.log(chalk.red('Error: ' + err));
 });
 
+/**
+ * @description Checks if the connection close
+ */
+client.on('close', () => {
+  console.log(chalk.red('Connection closed'));
+});
 
-yargs.parse();
