@@ -232,35 +232,35 @@ Una vez se emita por consola la salida del comando solicitado terminará la cone
 
 Para comprobar el correcto funcionamiento del programa se utilizan `mocha` y `chai`. Pueden encontrarse en esta [carpeta](https://github.com/ULL-ESIT-INF-DSI-2122/ull-esit-inf-dsi-21-22-prct11-async-sockets-stephaniearismendi/tree/master/test).
 
-  Tests EventEmitterController Methods
-    ✓ There must be a class EventEmitterController
-    ✓ Should emit a message event once it gets a complete message
+  Tests EventEmitterController Methods   
+    ✓ There must be a class EventEmitterController   
+    ✓ Should emit a message event once it gets a complete message   
 
-  Tests Notes Methods
-    ✓ There must be a class Notes
-    ✓ deleteNote test1 must work because it exists
-    ✓ deleteNote test1 must fail because it does not exists
-    ✓ Create test1 must work
-    ✓ Create test4 green must work
-    ✓ Create test6 yellow must work
-    ✓ Create test8 blue must work
-    ✓ Create test1 must fail because it already exists
-    ✓ Create test1 must fail because it already exists
-    ✓ Read Note exists
-    ✓ Read test4 green must work
-    ✓ Read test6 yellow must work
-    ✓ Read test8 blue must work
-    ✓ Read Note Red must work
-    ✓ Read Note Red must fail because the note does not exists
-    ✓ List Notes exists
-    ✓ List Notes => steph must work
-    ✓ List Notes => usertest must fail because the user has not created any notes
-    ✓ List Notes => usertest must fail because the user has deleted all its notes
-    ✓ EditNote test1 must work
-    ✓ EditNote test99 must fail because it does not exists
+  Tests Notes Methods   
+    ✓ There must be a class Notes  
+    ✓ deleteNote test1 must work because it exists   
+    ✓ deleteNote test1 must fail because it does not exists   
+    ✓ Create test1 must work    
+    ✓ Create test4 green must work     
+    ✓ Create test6 yellow must work   
+    ✓ Create test8 blue must work   
+    ✓ Create test1 must fail because it already exists   
+    ✓ Create test1 must fail because it already exists   
+    ✓ Read Note exists   
+    ✓ Read test4 green must work   
+    ✓ Read test6 yellow must work   
+    ✓ Read test8 blue must work   
+    ✓ Read Note Red must work   
+    ✓ Read Note Red must fail because the note does not exists   
+    ✓ List Notes exists   
+    ✓ List Notes => steph must work   
+    ✓ List Notes => usertest must fail because the user has not created any notes   
+    ✓ List Notes => usertest must fail because the user has deleted all its notes   
+    ✓ EditNote test1 must work   
+    ✓ EditNote test99 must fail because it does not exists   
 
 
-  23 passing (79ms)
+  23 passing (79ms)   
 
 ---------------------------|---------|----------|---------|---------|-------------------
 File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
