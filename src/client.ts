@@ -271,7 +271,7 @@ client.write(JSON.stringify(_request) + '\n', (err:any) => {
  * @description The socket receives the response from the server and prints it
  */
 socket.on('message', (data) => {
-  const aux:any = JSON.stringify(data);
+  const aux:any = JSON.stringify(data); // fix parsing error
   const response:any = JSON.parse(aux);
   if (response.state === 1) {
     if (response.type === 'add') {

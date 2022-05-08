@@ -86,9 +86,147 @@ En este caso tendremos el tipo de las respuestas, que siempre tendrán que conte
 
 Seguidamente, crearemos la clase `EventEmitterController`, que será la encargada de extender `EventEmitter` y controlar la emisión y recepción de datos por _chunks_, es decir, trozos de mensajes. 
 
+```typescript
+export class MessageEventEmitterController extends EventEmitter {
+  constructor(connection: EventEmitter) {
+    super();
+    let wholeData = '';
+    connection.on('data', (dataChunk) => {
+      wholeData += dataChunk;
+
+      let messageLimit = wholeData.indexOf('\n');
+      while (messageLimit !== -1) {
+        const message = wholeData.substring(0, messageLimit);
+        wholeData = wholeData.substring(messageLimit + 1);
+        this.emit('message', JSON.parse(message));
+        messageLimit = wholeData.indexOf('\n');
+      }
+    });
+  }
+}
+```
+
 En `Notes` tendremos las mismas funciones que en la práctica 9, descritas en su [informe](https://ull-esit-inf-dsi-2122.github.io/ull-esit-inf-dsi-21-22-prct09-filesystem-notes-app-stephaniearismendi/). La única diferencia es que, en vez de `console.log` se utilizará un JSON para almacenar las salidas de los métodos, así como sus errores. Todas las funciones retornarán un JSON.
 
+En `server.ts` tenemos la clase `MessageEventEmitterServer`, que extiene de `EventEmitter`. El constructor recibirá un número de puerto o establecerá el 6060 por defecto. Luego, se abrirá un servidor y, una vez reciba el mensaje completo, según el tipo de comando a utilizar, ejecutará el método y copiará el JSON en la respuesta.
 
+```typescript
+
+  constructor(port?:number) {
+    super();
+    this._port = port || 6060;
+    const Nota = new Notes();
+    const server = net.createServer((socket) => {
+      console.log(chalk.green('Connection established'));
+      const socketController = new MessageEventEmitterController(socket);
+      socketController.on('message', (message) => {
+        const request = message;
+        console.log(chalk.green(`Received request.`));
+        switch (request.type) {
+          case 'add':
+            console.log(chalk.green(`Adding note.`));
+            this._response = Nota.createNote(request.user, request.title, request.body, request.color);
+            break;
+          case 'read':
+            console.log(chalk.green(`Reading note.`));
+            this._response = Nota.readNote(request.user, request.title);
+            break;
+          case 'list':
+            console.log(chalk.green(`Listing notes.`));
+            this._response = Nota.listNotes(request.user);
+            break;
+          case 'remove':
+            console.log(chalk.green(`Removing note.`));
+            this._response = Nota.deleteNote(request.user, request.title);
+            break;
+          case 'modify':
+            console.log(chalk.green(`Modifying note.`));
+            this._response = Nota.editNote(request.user, request.title, request.body, request.color);
+            break;
+          default:
+            console.log(chalk.red(`Error: Unknown request type.`));
+            this._response.state = 0;
+            this._response.error = 'Unknown request type.';
+            break;
+        }
+      }
+    }
+  }
+```
+
+Finalmente, se enviará el JSON con la respuesta.
+
+```typescript
+        socket.write(JSON.stringify(this._response) + '\n', (err:any) => {
+          if (err) {
+            console.log(chalk.red('Error: ' + err));
+          } else {
+            console.log(chalk.green('Response sent'));
+          }
+        });
+```
+
+En el cliente, en cambio, lo primero que enontramos es una función auxiliar llamada `printColor`. Esta lo que hace es imprimir una cadena del color especificado. 
+
+Seguidamente se abre una conexión cliente en el puerto 6060, y más abajo tenemos toda la sección de comandos, también explicados en el informe de la práctica 9.
+
+```typescript
+
+const client = net.connect({port: 6060}); // default port
+const socket = new MessageEventEmitterController(client);
+
+```
+
+Una vez se recibe un comando por terminal, el cliente envía una petición al server en formato JSON con los datos especificados por yargs. 
+
+```typescript
+
+client.write(JSON.stringify(_request) + '\n', (err:any) => {
+  if (err) {
+    console.log(chalk.red('Error: ' + err));
+  } else {
+    console.log(chalk.green('Request sent'));
+  };
+});
+
+```
+
+Se queda a la espera hasta que recibe una respuesta, que parsea el JSON y, en caso de que el estado de la respuesta sea correcto, emite la salida de cada comando (según su tipo). En cambio, si hubo algún error también lo mostrará por consola.
+
+```typescript
+
+socket.on('message', (data) => {
+  const aux:any = JSON.stringify(data); // fix parsing error
+  const response:any = JSON.parse(aux);
+  if (response.state === 1) {
+    if (response.type === 'add') {
+      console.log(chalk.green(`Note ${response.title} added`));
+    } else if (response.type === 'read') {
+      console.log(chalk.green(`Note ${response.title} contains the following: `));
+      printColor(response.color, response.body);
+    } else if (response.type === 'list') {
+      console.log(chalk.green(`List of notes for ${response.user}`));
+      response.notes.forEach((note:any) => {
+        console.log(chalk.green(`Title: ${note.title}`));
+        console.log(chalk.green('-----------------------------------------------------'));
+        printColor(note.color, note.body);
+      },
+      );
+    } else if (response.type === 'remove') {
+      console.log(chalk.green(`Note ${response.title} removed`));
+    } else if (response.type === 'modify') {
+      console.log(chalk.green(`Note ${response.title} modified`));
+    }
+  } else {
+    console.log(chalk.red(`Error: ${response.error}`));
+  }
+  client.destroy(); // kill client after server's response
+},
+);
+
+```
+
+Una vez se emita por consola la salida del comando solicitado terminará la conexión con el servidor, teniendo que abrir una nueva en caso de así desearlo. 
 
 # Pruebas
 
