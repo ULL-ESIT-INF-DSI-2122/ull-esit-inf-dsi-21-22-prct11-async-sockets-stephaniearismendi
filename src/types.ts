@@ -16,7 +16,6 @@ export type ResponseTypes = {
     user?: string;
     body?: string;
     color?: string;
-    path?: string;
     error?: string;
     type: 'add' | 'read' | 'list' | 'remove' | 'modify';
     notes?: NotesType[];
@@ -30,6 +29,5 @@ export type RequestTypes = {
     title?: string;
     body?: string;
     color?: string;
-    path?: string;
     type: 'add' | 'read' | 'list' | 'remove' | 'modify';
 }

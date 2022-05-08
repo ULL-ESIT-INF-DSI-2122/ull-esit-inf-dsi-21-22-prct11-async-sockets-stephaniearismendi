@@ -34,7 +34,6 @@ let _request:RequestTypes = {
   title: '',
   body: '',
   color: '',
-  path: '',
   type: 'list',
 };
 
