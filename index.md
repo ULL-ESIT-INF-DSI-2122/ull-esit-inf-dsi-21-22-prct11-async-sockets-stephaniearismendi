@@ -1,4 +1,4 @@
-## Práctica 10 - Sistema de ficheros y creación de procesos en Node.js
+## Práctica 11 - Sistema de ficheros y creación de procesos en Node.js
 
 En esta práctica se partirá de la implementación de la aplicación de procesamiento de notas de texto que llevó a cabo en la Práctica 9 para escribir un servidor y un cliente haciendo uso de los sockets proporcionados por el módulo net de Node.js.
 
