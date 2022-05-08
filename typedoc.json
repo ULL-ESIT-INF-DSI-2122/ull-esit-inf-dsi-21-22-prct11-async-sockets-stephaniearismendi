@@ -1,13 +1,10 @@
 {
   "entryPoints": [
-    "./src/ejercicio-1/index.ts",
-    "./src/ejercicio-2/catApp.ts",
-    "./src/ejercicio-2/index.ts",
-    "./src/ejercicio-3/look-directory.ts",
-    "./src/ejercicio-3/notes-app.ts",
-    "./src/ejercicio-3/notes.ts",
-    "./src/ejercicio-4/index.ts",
-    "./src/ejercicio-4/wrapper.ts"
+    "./src/client.ts",
+    "./src/EventEmitterController.ts",
+    "./src/NotesApp.ts",
+    "./src/server.ts",
+    "./src/types.ts"
   ],
   "out": "./docs"
 }
