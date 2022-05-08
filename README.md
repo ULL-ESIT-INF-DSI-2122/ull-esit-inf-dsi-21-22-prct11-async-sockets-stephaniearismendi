@@ -13,4 +13,4 @@
     </a>
 </p>
 
-En este repositorio se aloja la práctica 10 siguiendo el [guión](https://ull-esit-inf-dsi-2122.github.io/prct10-async-fs-process/) proporcionado. 
+En este repositorio se aloja la práctica 11 siguiendo el [guión](https://ull-esit-inf-dsi-2122.github.io/prct11-async-sockets/) proporcionado. 
