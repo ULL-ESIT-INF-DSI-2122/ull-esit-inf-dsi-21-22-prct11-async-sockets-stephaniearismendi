@@ -1,4 +1,4 @@
-## Práctica 10 : Sistema de ficheros y creación de procesos en Node.js
+## Práctica 11 : Sistema de ficheros y creación de procesos en Node.js
 
 <p align="center">
     <a href="https://github.com/ULL-ESIT-INF-DSI-2122/github-actions-typescript-nodejs-ci/blob/master/LICENSE">
@@ -13,4 +13,4 @@
     </a>
 </p>
 
-En este repositorio se aloja la práctica 10 siguiendo el [guión](https://ull-esit-inf-dsi-2122.github.io/prct10-async-fs-process/) proporcionado. 
+En este repositorio se aloja la práctica 11 siguiendo el [guión](https://ull-esit-inf-dsi-2122.github.io/prct11-async-sockets/) proporcionado. 
